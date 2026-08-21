@@ -1,0 +1,55 @@
+#!/bin/sh
+
+_basedir=$(cd $(dirname $0); pwd)
+mkdir output
+
+# 构建kvm-unit-tests用于sbi测试
+if [ ! -d "kvm-unit-tests" ]; then
+	git clone https://gitlab.com/kvm-unit-tests/kvm-unit-tests.git
+fi
+cd kvm-unit-tests
+./configure --arch=riscv64 --cross-prefix=riscv64-linux-gnu- --enable-efi
+make
+cp riscv/sbi.efi $(_basedir)/output/
+
+
+
+# 构建riscv-brs-tests的sct用于uefi测试
+cd $_basedir
+if [ ! -d "riscv-brs-tests" ]; then
+	git clone https://github.com/riscv-software-src/riscv-brs-tests.git
+fi
+cd riscv-brs-tests
+patch -p1 < ../riscv-brs-tests-0001.patch
+
+cd src/brs-edk2
+if [ ! -d "edk2" ]; then
+    echo "Cloning EDK2..."
+    git clone --progress https://github.com/tianocore/edk2.git edk2
+
+    pushd edk2
+    git checkout -b brs-test edk2-stable202508
+    git submodule update --init --progress
+    popd
+fi
+
+cd ../..
+cd src/brs-edk2-test
+make
+cp edk2-test/uefi-sct/Build/Shell/RELEASE_GCC5/RISCV64/Shell_7C04A583-9E3E-4f1c-AD65-E05268D0B4D1.efi $(_basedir)/output/
+cp -r edk2-test/uefi-sct/RISCV64_SCT/ $(_basedir)/output/
+
+
+
+#构建fwts 提前安装libglib2.0-dev
+cd $_basedir
+git clone https://github.com/fwts/fwts.git
+cd fwts
+autoreconf -ivf
+./configure \   
+    --host=riscv64-linux-gnu \
+    --build=x86_64-linux-gnu \
+    --prefix=/usr
+make -j $(nproc)
+make install DESTDIR=$(_basedir)/output/fwts
+

@@ -1,0 +1,78 @@
+diff --git a/src/brs-edk2-test/brsi-tests/BrsBootServices/BlackBoxTest/BrsBootServicesBBTestFunction.c b/src/brs-edk2-test/brsi-tests/BrsBootServices/BlackBoxTest/BrsBootServicesBBTestFunction.c
+index 70b7468..ddbd6bb 100644
+--- a/src/brs-edk2-test/brsi-tests/BrsBootServices/BlackBoxTest/BrsBootServicesBBTestFunction.c
++++ b/src/brs-edk2-test/brsi-tests/BrsBootServices/BlackBoxTest/BrsBootServicesBBTestFunction.c
+@@ -111,7 +111,7 @@ BBTestMemoryMapTest (
+   Status = gtBS->HandleProtocol (
+               SupportHandle,
+               &gEfiStandardTestLibraryGuid,
+-              &StandardLib
++              (void **)&StandardLib
+               );
+   if (EFI_ERROR (Status)) {
+     return Status;
+@@ -284,7 +284,7 @@ BBTestAcpiTableTest (
+   Status = gtBS->HandleProtocol (
+               SupportHandle,
+               &gEfiStandardTestLibraryGuid,
+-              &StandardLib
++              (void **)&StandardLib
+               );
+   if (EFI_ERROR (Status)) {
+     return Status;
+@@ -295,7 +295,7 @@ BBTestAcpiTableTest (
+   //
+   Status = SctGetSystemConfigurationTable (
+               &gEfiAcpi20TableGuid,
+-              &AcpiTable
++              (void **)&AcpiTable
+               );
+   if (EFI_ERROR (Status)){
+     StandardLib->RecordAssertion (
+@@ -439,7 +439,7 @@ BBTestSmbiosTableTest (
+   Status = gtBS->HandleProtocol (
+               SupportHandle,
+               &gEfiStandardTestLibraryGuid,
+-              &StandardLib
++              (void **)&StandardLib
+               );
+   if (EFI_ERROR (Status)) {
+     return Status;
+@@ -450,7 +450,7 @@ BBTestSmbiosTableTest (
+   //
+   Status = SctGetSystemConfigurationTable (
+               &gEfiSmbios3TableGuid,
+-              &SmbiosTable
++              (void **)&SmbiosTable
+               );
+   if (EFI_ERROR(Status)) {
+     StandardLib->RecordAssertion (
+diff --git a/src/brs-edk2-test/brsi-tests/BrsiRuntimeServices/BlackBoxTest/BRSIRuntimeServicesBBTestFunction.c b/src/brs-edk2-test/brsi-tests/BrsiRuntimeServices/BlackBoxTest/BRSIRuntimeServicesBBTestFunction.c
+index b971c73..35add10 100644
+--- a/src/brs-edk2-test/brsi-tests/BrsiRuntimeServices/BlackBoxTest/BRSIRuntimeServicesBBTestFunction.c
++++ b/src/brs-edk2-test/brsi-tests/BrsiRuntimeServices/BlackBoxTest/BRSIRuntimeServicesBBTestFunction.c
+@@ -436,7 +436,7 @@ BBTestNonVolatileVariable (
+     Status = gtRT->SetVariable (
+                 TEST_VAR_NAME,
+                 &VarVendorGuid,
+-                NULL,
++                0,
+                 Size,
+                 NULL
+                 );
+@@ -537,7 +537,7 @@ BBTestNonVolatileVariable (
+     Status = gtRT->SetVariable (
+                 TEST_VAR_NAME,
+                 &VarVendorGuid,
+-                NULL,
++                0,
+                 Size,
+                 NULL
+                 );
+@@ -576,4 +576,4 @@ BBTestNonVolatileVariable (
+   } else {
+     return EFI_LOAD_ERROR;
+   }
+-}
+\ No newline at end of file
++}
